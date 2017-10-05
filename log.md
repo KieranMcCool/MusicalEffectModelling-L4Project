@@ -1,0 +1,19 @@
+## 29/09/2017 - 3 Hours         
+
+* Began reading the first chapter of colah.github.io
+* Watched YouTube Lectures on machine learning and neural networks
+
+## 03/10/2017 - 2 Hours
+
+* Read some of Section 1 of Nielson's book on machine learning
+
+## 04/10/2017  2 Hours
+
+* Prepared presentation on project for Advanced Geographies  Presentation
+* Installed PyTorch successfully
+* Had trouble with Keras installation.
+
+## 05/10/2017 - 2 Hours 
+
+* Second project meeting
+* Began reading "The Unreasonable Effectiveness of Recurrent Neural Networks.
