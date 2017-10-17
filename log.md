@@ -32,6 +32,13 @@
 
 ## 13/10/2017 - 2 Hours
 
-* Started working on Pipeline for generating test data
+* Started working on pipeline for generating test data
     - SciPy for generating wav files, Mrs Watson for processing them through the VST plugin.
     - Having trouble getting Mrs Watson to read the wav files generated.
+
+## 17/10/2017 - 2 Hours
+
+* Test data pipeline is mostly in place, just working out some bugs with MrsWatson.
+	- MrsWatson processes the files and data looks to be there but no software can seem to read the resulting files...
+	- Might try with MacOS/Windows instead of Linux as these appear to be better supported.
+	- Choice of plugins also limited by poor support on Linux from VST developers.
