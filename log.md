@@ -30,3 +30,8 @@
 * Third project meeting
 * Digitised minutes from today's meeting.
 
+## 13/10/2017 - 2 Hours
+
+* Started working on Pipeline for generating test data
+    - SciPy for generating wav files, Mrs Watson for processing them through the VST plugin.
+    - Having trouble getting Mrs Watson to read the wav files generated.
