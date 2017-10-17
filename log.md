@@ -36,9 +36,13 @@
     - SciPy for generating wav files, Mrs Watson for processing them through the VST plugin.
     - Having trouble getting Mrs Watson to read the wav files generated.
 
-## 17/10/2017 - 2 Hours
+## 17/10/2017 - 3 Hours
 
 * Test data pipeline is mostly in place, just working out some bugs with MrsWatson.
 	- MrsWatson processes the files and data looks to be there but no software can seem to read the resulting files...
 	- Might try with MacOS/Windows instead of Linux as these appear to be better supported.
 	- Choice of plugins also limited by poor support on Linux from VST developers.
+    - Frustratingly, everything worked with only minor changes on Windows.
+* Upon hearing the output from the VST plugins, I decided to move away from random frequency sweeps to those found within a guitars frequency range.
+    - Researched what this range was and wrote code to replicate it.
+* Looking at setting variables on effect with MrsWatson.
