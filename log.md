@@ -7,7 +7,7 @@
 
 * Read some of Section 1 of Nielson's book on machine learning
 
-## 04/10/2017  2 Hours
+## 04/10/2017 - 2 Hours
 
 * Prepared presentation on project for Advanced Geographies Presentation
 * Installed PyTorch successfully
