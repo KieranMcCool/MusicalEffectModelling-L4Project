@@ -46,3 +46,7 @@
 * Upon hearing the output from the VST plugins, I decided to move away from random frequency sweeps to those found within a guitars frequency range.
     - Researched what this range was and wrote code to replicate it.
 * Looking at setting variables on effect with MrsWatson.
+
+## 18/10/2017 - 1 Hour
+
+* Worked through introduction PyTorch tutorials on their website.
