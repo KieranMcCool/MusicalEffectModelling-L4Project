@@ -50,3 +50,13 @@
 ## 18/10/2017 - 1 Hour
 
 * Worked through introduction PyTorch tutorials on their website.
+
+## 19/10/2017 - 1 Hour
+
+* Wrote up minutes from Meeting 4
+    - Also fixed dates of meeting minutes, I had been forgetting to change them.
+
+## 23/10/2017 - 1 Hours
+
+* Cleaned up code for test data pipeline, almost ready to be finalised into a python CLI program.
+* Read additional documentation for PyTorch

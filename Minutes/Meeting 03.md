@@ -1,6 +1,6 @@
 % Minutes from Meeting 3
 % Kieran McCool
-% 28 September 2017
+% 12 October 2017
 
 # Progress since last meeting
 
