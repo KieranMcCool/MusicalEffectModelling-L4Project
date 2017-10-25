@@ -60,3 +60,14 @@
 
 * Cleaned up code for test data pipeline, almost ready to be finalised into a python CLI program.
 * Read additional documentation for PyTorch
+
+## 24/10/2017 - 2 Hours
+
+* Followed PyTorch examples until intermediate
+* Read some blogs about PyTorch
+    - [](https://www.oreilly.com/ideas/why-ai-and-machine-learning-researchers-are-beginning-to-embrace-pytorch)
+
+## 25/10/2017 - 2 Hours
+
+* Adapting basic neural network from tutorials into something which can accept the wav data as read by SciPy
+    - Reading in wav files with SciPy as Numpy arrays, converting to PyTorch tensors.
