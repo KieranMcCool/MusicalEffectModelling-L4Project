@@ -75,3 +75,22 @@
 ## 27/10/2017 - 1 Hour
 
 * Wrote up minutes from meeting yesterday
+
+## 30/10/2017 - 2 Hours
+
+* Discovered bug in the pipeline involving MrsWatson
+    - Picky about files/plugins and I'm not even sure it's working at all.
+    - Tried a few different plugins, some work better than others, some crash all together
+    - Inconsistency running even with the same command multiple times
+* Tried RenderMan, an alternative to MrsWatson
+    - Lots of dependencies
+    - Couldn't work out how to compile it as some dependencies have updated their code and are no longer compatible but don't have legacy builds available for download.
+
+## 31/10/2017 - 2 Hours
+
+* Frustrated with Pipeline issues, decided to do what I could for now.
+    * Adapting examples for sound
+    - Started writing code for sliding window approach.
+    - Taking a wav file and splitting it into equal sized blocks, padding if necessary
+    - This makes it easier to train the network
+* Looked some more at DeepSound, might be useful to borrow some of their RNN code at a later date.
