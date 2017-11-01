@@ -71,3 +71,7 @@
 
 * Adapting basic neural network from tutorials into something which can accept the wav data as read by SciPy
     - Reading in wav files with SciPy as Numpy arrays, converting to PyTorch tensors.
+
+## 27/10/2017 - 1 Hour
+
+* Wrote up minutes from meeting yesterday

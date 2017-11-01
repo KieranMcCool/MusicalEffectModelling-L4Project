@@ -1,6 +1,7 @@
 import torch
 from torch import nn, autograd, optim
 from torch.nn import functional as F
+from dataloader import loadWav
 
 batch_size = 5
 input_size = 4
@@ -9,7 +10,9 @@ num_classes = 4
 learning_rate = 0.001
 
 torch.manual_seed(123)
-input = autograd.Variable(torch.rand(batch_size, input_size) - 0.5)
+# input = autograd.Variable(torch.rand(batch_size, input_size) - 0.5)
+input = autograd.Variable(loadWav('datasets/test.wav')
+
 target = autograd.Variable((torch.rand(batch_size) * num_classes).long())
 
 class Model(nn.Module):
