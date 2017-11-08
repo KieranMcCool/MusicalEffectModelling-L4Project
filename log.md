@@ -89,8 +89,18 @@
 ## 31/10/2017 - 2 Hours
 
 * Frustrated with Pipeline issues, decided to do what I could for now.
-    * Adapting examples for sound
+* Adapting examples for sound
     - Started writing code for sliding window approach.
     - Taking a wav file and splitting it into equal sized blocks, padding if necessary
     - This makes it easier to train the network
 * Looked some more at DeepSound, might be useful to borrow some of their RNN code at a later date.
+
+## 7/11/2017 - 5 Hours
+
+* Minutes written up from last meeting (technically done on the day of the meeting, just digitised them)
+* Code for generating training data is totally redone
+    - Data is **far** more random than it was before.
+    - Command line parameters added to allow easy test data generation
+    - Randomisation made much simpler
+    - Much more flexible options for creating test data, makes it easier to add even more variability should the need arise.
+* Reaper command line instead of MrsWatson as issues from last time could not be fixed.
