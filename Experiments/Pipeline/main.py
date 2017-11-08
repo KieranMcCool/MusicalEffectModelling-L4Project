@@ -53,7 +53,7 @@ def noteChanges():
         # 30% chance of 1 second, 30% chance of 1 to 3 seconds, 
         # 20% chance of 0 to 1 second, 20% chance of 0 to 0.5 seconds
         noteDuration = randrange(0, 100)
-        d = (    1        if noteDuration < 30
+        d = (1 if noteDuration < 30
             else randrange(1, 3) if noteDuration < 60
             else uniform(0, 1)   if noteDuration < 80
             else uniform(0, 0.5))

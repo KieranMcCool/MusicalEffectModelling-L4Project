@@ -1,0 +1,15 @@
+/Users/kmccool/Documents/Notes/Level4Project-Docs/Experiments/Pipeline/dataset/0.wav
+ /Users/kmccool/Documents/Notes/Level4Project-Docs/Experiments/Pipeline/dataset/1.wav
+ /Users/kmccool/Documents/Notes/Level4Project-Docs/Experiments/Pipeline/dataset/2.wav
+ /Users/kmccool/Documents/Notes/Level4Project-Docs/Experiments/Pipeline/dataset/3.wav
+ /Users/kmccool/Documents/Notes/Level4Project-Docs/Experiments/Pipeline/dataset/4.wav
+ /Users/kmccool/Documents/Notes/Level4Project-Docs/Experiments/Pipeline/dataset/5.wav
+ /Users/kmccool/Documents/Notes/Level4Project-Docs/Experiments/Pipeline/dataset/6.wav
+ /Users/kmccool/Documents/Notes/Level4Project-Docs/Experiments/Pipeline/dataset/7.wav
+ /Users/kmccool/Documents/Notes/Level4Project-Docs/Experiments/Pipeline/dataset/8.wav
+ /Users/kmccool/Documents/Notes/Level4Project-Docs/Experiments/Pipeline/dataset/9.wav
+ <CONFIG
+FXCHAIN "/Users/kmccool/Documents/Notes/Level4Project-Docs/Experiments/Pipeline/reverb.RfxChain"
+OUTPATH "/Users/kmccool/Documents/Notes/Level4Project-Docs/Experiments/Pipeline/dataset/processed"
+<RENDERPRESET render 0 0 0 0 3 0>
+>
