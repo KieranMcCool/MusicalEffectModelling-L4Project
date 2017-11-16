@@ -1,56 +1,73 @@
 import torch
-from torch import nn, autograd, optim
-from torch.nn import functional as F
-from dataloader import loadWav
-from dataloader import getDatasets
+import numpy as np
+import globals
+from torch.autograd import Variable
+from dataloader import loadWav, writeWav
+from data import WavFile
+from os import walk
 
-input_size = 352800
-hidden_size = 800
-num_classes = 352800
-learning_rate = 0.001
+# D_in is input dimension;
+# H is hidden dimension; D_out is output dimension.
+D_in, H, D_out = globals.INPUT_VECTOR_SIZE, 150, 1
 
-class Model(nn.Module):
-    def __init__(self, input_size, hidden_size, num_classes):
-        super().__init__()
-        self.h1 = nn.Linear(input_size, hidden_size)
-        self.h2 = nn.Linear(hidden_size, num_classes)
+loss_fn = torch.nn.MSELoss(size_average=False)
+learning_rate = 1e-4
+iteration = 1
 
-    def forward(self, x):
-        x = x.clamp(-1, 0)
-        x = self.h1(x)
-        x = F.tanh(x)
-        x = self.h2(x)
-        x = F.log_softmax(x)
-        return x
+model = torch.nn.Sequential(
+          torch.nn.Linear(D_in, H),
+          torch.nn.ReLU(),
+          torch.nn.Linear(H, D_out),
+        )
 
-def train():
-    model = Model(input_size=input_size, hidden_size=hidden_size, num_classes=num_classes)
-    opt = optim.Adam(params=model.parameters(), lr=learning_rate)
+optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+
+def doTest(i):
+    CurrentData = WavFile('test.wav', None)
+    output = [] 
+
+    for j in range(CurrentData.len()):
+        output += [ predict(CurrentData.format(j), train=False)]
+    output = np.array(output)
+    writeWav(globals.SAMPLE_RATE, output, '%d.wav' % i)
+
+def predict(data, train=True, filename=''):
+    global iteration
+    # Get Input and target from data
+    inputVector = torch.from_numpy(data[0]).type(torch.FloatTensor)
+    target = torch.FloatTensor([data[1]])
     
-    # For file in datasets
-        # for chunk in file
-            # train 100 times on chunk
+    # Encapsulate in PyTorch Variable
+    x = Variable(inputVector)
+    y = Variable(target, requires_grad=False)
 
-    #  File in format [ [ [raw equal sized chunks], [raw equal sized chunks] ] ]
-    for file in getDatasets():
-        for chunk in file:
-            raw = torch.from_numpy(chunk[0]).type(torch.FloatTensor)
-            processed = torch.from_numpy(chunk[1]).type(torch.FloatTensor)
+    # Run input through model and compute loss
+    y_pred = model(x)
+    loss = loss_fn(y_pred, y)
 
-            input = autograd.Variable(raw)
-            target = autograd.Variable(processed).long()
-            for i in range(100):
-                out = model(input)
-                print(out)
-                _, pred = out.max(1)
-                print('target', str(target.view(1, -1)).split('\n')[1])
-                print('pred', str(pred.view(1, -1)).split('\n')[1])
-                loss = F.nll_loss(out, target)
-                print('loss', loss.data[0])
-
-        model.zero_grad()
+    
+    # If training then backwards propagate, otherwise save prediction for output
+    if train:
+        print(iteration, filename, loss.data[0])
+        optimizer.zero_grad()
         loss.backward()
-        opt.step()
+        optimizer.step()
+        iteration += 1
 
-train()
+    return y_pred.data[0]
 
+def main():
+    getFiles = lambda x : ([ '%s/%s' % (x,  l) 
+        for l in list(walk(x))[0][2] if l.endswith('.wav')])
+
+    raw = getFiles('./dataset')
+    processed = getFiles('./dataset/processed')
+
+    for file, pFile in zip(raw, processed):
+        CurrentData = WavFile(file, processedPath=pFile)
+        for i in range(CurrentData.len()):
+            predict(CurrentData.format(i), filename=file)
+            if iteration % globals.OUTPUT_FREQUENCY == 0 :
+                doTest(iteration)
+
+main()
