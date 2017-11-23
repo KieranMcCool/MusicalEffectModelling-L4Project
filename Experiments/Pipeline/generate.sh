@@ -5,7 +5,7 @@ mkdir dataset
 ./main.py -n $1 -s $2
 
 echo $(find dataset -iname \*.wav -exec echo "$(pwd)/{}\n"  \;) "<CONFIG
-FXCHAIN \"$(pwd)/reverb.RfxChain\"
+FXCHAIN \"$(pwd)/lindistortion.RfxChain\"
 OUTPATH \"$(pwd)/dataset/processed\"
 <RENDERPRESET render 0 0 0 0 3 0>
 >" > reaper && /Applications/REAPER64.app/Contents/MacOS/REAPER -newinst -batchconvert reaper

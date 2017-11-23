@@ -10,6 +10,7 @@ class WavFile:
     def __init__(self, path, processedPath=None):
         self.rawData = loadWav(path)
         if processedPath != None:
+            print('Loading Processed data...')
             self.processedData = loadWav(processedPath)
     
     # Returns an input vector and the target value in a list

@@ -8,28 +8,28 @@ from os import walk
 
 # D_in is input dimension;
 # H is hidden dimension; D_out is output dimension.
-D_in, H, D_out = globals.INPUT_VECTOR_SIZE, 150, 1
+D_in, D_out = globals.INPUT_VECTOR_SIZE, 1
 
 loss_fn = torch.nn.MSELoss(size_average=False)
 learning_rate = 1e-4
 iteration = 1
 
 model = torch.nn.Sequential(
-          torch.nn.Linear(D_in, H),
+          torch.nn.Linear(D_in, 32),
           torch.nn.ReLU(),
-          torch.nn.Linear(H, D_out),
+          torch.nn.Linear(32, D_out),
         )
 
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
 def doTest(i):
-    CurrentData = WavFile('test.wav', None)
+    CurrentData = WavFile('./model_outputs/test.wav', './model_outputs/testoutput.wav')
     output = [] 
 
     for j in range(CurrentData.len()):
         output += [ predict(CurrentData.format(j), train=False)]
     output = np.array(output)
-    writeWav(globals.SAMPLE_RATE, output, '%d.wav' % i)
+    writeWav(globals.SAMPLE_RATE, output, './model_outputs/%d.wav' % i)
 
 def predict(data, train=True, filename=''):
     global iteration
@@ -45,10 +45,10 @@ def predict(data, train=True, filename=''):
     y_pred = model(x)
     loss = loss_fn(y_pred, y)
 
-    
+    print(iteration, filename, loss.data[0])
+
     # If training then backwards propagate, otherwise save prediction for output
     if train:
-        print(iteration, filename, loss.data[0])
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
@@ -69,5 +69,7 @@ def main():
             predict(CurrentData.format(i), filename=file)
             if iteration % globals.OUTPUT_FREQUENCY == 0 :
                 doTest(iteration)
+                torch.save(model.state_dict(), 
+                    './model_checkpoints/%d.model' % iteration)
 
 main()

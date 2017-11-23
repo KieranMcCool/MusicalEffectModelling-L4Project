@@ -135,6 +135,27 @@
     - 64 sample size didn't produce very good results
     - Increased to 200 for greater spacial awareness, which definitely improved things but training was painfully slow.
 
-## 15/11/2017 - ???
+## 15/11/2017 - 1 Hours
+
+* Set up a TS808 effects chain to train on
+* Ran an initial experiment on TS808
 
 
+## 16/11/2017 - 1 Hour
+
+* Had project meeting
+* Wrote up project meeting notes
+* Looked at Conv1D in PyTorch
+    - Can't seem to get it working with my data, wants 3D tensor, audio data is 1D
+
+## 20/11/2017 - 1 Hour
+
+* Looked at DeepSound and ProjectMagenta for potential example of conv1d applied to audio data.
+    - Still not quite sure, DeepSound uses RNN instead and ProjectMagenta uses TensorFlow
+
+## 22/11/2017 - 2 Hours
+
+* Model saves at each checkpoint, not yet able to load a checkpoint.
+* Verified that the training process is actually working by training the model to simply reproduce the input, this works as loss hits 0 very quickly.
+* Ran current network on linear distortion
+    - Overfitting seems to be a problem
