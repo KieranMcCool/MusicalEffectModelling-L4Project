@@ -1,4 +1,4 @@
-% Minutes from Meeting 5
+% Minutes from Meeting 6
 % Kieran McCool
 % 2 November 2017
 

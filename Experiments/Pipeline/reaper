@@ -9,7 +9,7 @@
  /Users/kmccool/Documents/Notes/Level4Project-Docs/Experiments/Pipeline/dataset/3.wav
  /Users/kmccool/Documents/Notes/Level4Project-Docs/Experiments/Pipeline/dataset/2.wav
  <CONFIG
-FXCHAIN "/Users/kmccool/Documents/Notes/Level4Project-Docs/Experiments/Pipeline/lindistortion.RfxChain"
+FXCHAIN "/Users/kmccool/Documents/Notes/Level4Project-Docs/Experiments/Pipeline/ts8082.RfxChain"
 OUTPATH "/Users/kmccool/Documents/Notes/Level4Project-Docs/Experiments/Pipeline/dataset/processed"
 <RENDERPRESET render 0 0 0 0 3 0>
 >

@@ -2,5 +2,7 @@
 SAMPLE_RATE = 44100
 # How big the input vector to the network should be
 INPUT_VECTOR_SIZE = 64
+# Number of input vectors per sample
+BATCH_SIZE = 200
 # Save output of network on unseen data every x iterations
-OUTPUT_FREQUENCY = 50000
+OUTPUT_FREQUENCY = 500000

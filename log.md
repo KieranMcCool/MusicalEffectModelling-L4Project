@@ -159,3 +159,22 @@
 * Verified that the training process is actually working by training the model to simply reproduce the input, this works as loss hits 0 very quickly.
 * Ran current network on linear distortion
     - Overfitting seems to be a problem
+
+## 23/11/2017 - 1 Hour
+
+* Project meeting and wrote up minutes
+
+## 27/11/2017 - 2 Hours
+
+* Started working on getting convolutions added
+    - Still struggling to understand what's going on
+    - Getting errors saying expected 3D tensor when data.dim() reports we are using a 3D tensor?!?!?1
+
+## 29/11/2017 - 3 Hours
+
+* Frustrated, tried a change of tactics.
+    - Instead of going for a 200x64x1 Tensor, let's just go for 1x1x64
+    - Only focus on the 64 time slice
+    - Seems to be working pretty well, loss is going lower than I've seen it before
+* Network now going Conv1D(64) -> ReLU -> Conv1D(32) -> ReLU -> Conv1D(1) -> ReLU 
+    - More convincing results than ever.
