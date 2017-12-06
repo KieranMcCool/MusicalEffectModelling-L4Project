@@ -8,7 +8,7 @@ def loadWav(inputFile):
     _, data = wf.read(inputFile)
     return data
 
-def writeWav(sampleRate, data, outputFile):
+def writeWav(data, outputFile, sampleRate=globals.SAMPLE_RATE):
     wf.write(outputFile, sampleRate, data)
 
 def padEnd(array, padding):

@@ -178,3 +178,18 @@
     - Seems to be working pretty well, loss is going lower than I've seen it before
 * Network now going Conv1D(64) -> ReLU -> Conv1D(32) -> ReLU -> Conv1D(1) -> ReLU 
     - More convincing results than ever.
+
+## 30/11/2017 - 1 Hour
+
+* Wrote up minutes from meeting
+
+## 5/11/2017 - 4 Hours
+
+* Got batches of 200 working
+    - Hoping to be able to randomly choose samples to train in a given batch
+    - Also hoping to be able to run sequentially so I can run on output files 200 times faster.
+* Some code cleanup
+    - Model's forward function cleaned up by encapsulating multiple layers in Sequentials.
+* Started moving run-time code into main.py so that net.py just contains the model and functions directly related to it.
+    - Will be easier to reason about code base when every component is in its distinct location
+    - Means I can look into adding command line arguments without ending up with a huge number of lines detracting from the pytorch specific code.
