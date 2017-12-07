@@ -3,50 +3,59 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
+from spectogram import spectogram
 import numpy as np
 import globals
 from dataloader import loadWav, writeWav
 from data import WavFile, batchify
 from os import walk
+from random import randrange
 
 loss_fn = torch.nn.MSELoss(size_average=False)
-learning_rate = 1e-4
+learning_rate = 1e-3
 iteration = 1
 
 class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
-
         self.conv = nn.Sequential(
-                nn.BatchNorm1d(64),
-                nn.Conv1d(64, 64, 1), nn.ReLU(), nn.Dropout(),
-                nn.Conv1d(64,32, 1),  nn.ReLU(), nn.Dropout())
-        self.fc = nn.Sequential(
-                nn.Linear(32, 16), 
+                nn.Conv1d(64, 32, 1, stride=4), nn.ReLU(),
+                nn.MaxPool1d(1), nn.ReLU())
+        self.lin = nn.Sequential(
+                nn.Linear(32, 16), nn.ReLU(),
                 nn.Linear(16, 1))
-
+                
     def forward(self, x):
         x = self.conv(x)
         x = x.view(x.size(0), -1)
-        x = self.fc(x)
+        x = self.lin(x)
         return x
 
 model = Model()
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 
-def doTest(i):
+def testOutput(milestone):
+    global iteration
+    backup = iteration
+    iteration = 1
     fname = './model_outputs/test.wav'
-    CurrentData = WavFile(fname, './model_outputs/testoutput.wav')
-    output = [] 
+    pname = './model_outputs/testoutput.wav'
+    CurrentData = WavFile(loadWav(fname), procData=loadWav(pname) )
+    output = []
+    for b in range(0, CurrentData.len() - globals.BATCH_SIZE, globals.BATCH_SIZE):
+        batch = batchify([CurrentData.getSample(b + i) for i in range(globals.BATCH_SIZE)])
+        pred = train(batch, training=False, filename='testing')
+        pred = [ p[0] for p in pred ] 
+        output += pred
+    outputName = './model_outputs/%d.wav' % milestone
+    writeWav(np.array(output), outputName)
+    spectogram(outputName)
+    iteration = backup
 
-    for j in range(CurrentData.len()):
-        output += [ predict(CurrentData.format(j), filename=fname, train=False)]
-
-    output = np.array(output)
-    writeWav(globals.SAMPLE_RATE, output, './model_outputs/%d.wav' % i)
 
 def train(data, training=True, filename=''):
     global iteration
+    
     # Get Input and target from data
     inputVector = torch.Tensor(data[0])
     target = torch.Tensor([data[1]])
@@ -66,27 +75,37 @@ def train(data, training=True, filename=''):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        iteration += 1
+    iteration += 1
 
     return y_pred.data
 
+def randomSampler(data):
+    return batchify([data.getSample(randrange(0, 
+        data.len())) for i in range(globals.BATCH_SIZE)])
+            
 def main():
-    getFiles = lambda x : ([ '%s/%s' % (x,  l) 
-        for l in list(walk(x))[0][2] if l.endswith('.wav')])
+    def loadData():
+        getFiles = lambda x : ([ '%s/%s' % (x,  l) 
+            for l in list(walk(x))[0][2] if l.endswith('.wav')])
 
-    raw = getFiles('./dataset')
-    processed = getFiles('./dataset/processed')
-    # Iterate over files and processed files
-    for file, pFile in zip(raw, processed):
-        CurrentData = WavFile(loadWav(file), procData=loadWav(pFile))
-        for i in range(CurrentData.len() - globals.BATCH_SIZE):
-            data = batchify([CurrentData.getSample(z)
-                for z in range(i, 
-                    i + globals.BATCH_SIZE if i + globals.BATCH_SIZE < CurrentData.len() else i)])
+        dryFiles = getFiles('./dataset')
+        wetFiles = getFiles('./dataset/processed')
 
-            train(data, filename=file)
-            if iteration % globals.OUTPUT_FREQUENCY == 0 :
-                doTest(iteration)
-                torch.save(model.state_dict(), 
-                    './model_checkpoints/%d.model' % iteration)
+        dryData = []
+        wetData =  []
+
+        # Iterate over files and processed files
+        for file, pFile in zip(dryFiles, wetFiles):
+           dryData = dryData  + list(loadWav(file))
+           wetData = wetData + list(loadWav(pFile))
+        return WavFile(np.array(dryData), np.array(wetData))
+
+    CurrentData = loadData()
+    for i in range(CurrentData.len()):
+        data = randomSampler(CurrentData)
+        train(data)
+        if iteration % globals.OUTPUT_FREQUENCY == 0 :
+            testOutput(iteration)
+            torch.save(model.state_dict(), 
+                './model_checkpoints/%d.model' % iteration)
 main()
