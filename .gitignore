@@ -106,3 +106,4 @@ venv.bak/
 *.wav
 *.png
 *.model
+DS_Store
