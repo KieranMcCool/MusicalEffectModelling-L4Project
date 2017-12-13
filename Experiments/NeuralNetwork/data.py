@@ -1,34 +1,23 @@
 from globals import INPUT_VECTOR_SIZE, BATCH_SIZE
 import torch
+from torch.utils.data import Dataset, DataLoader
+from torch.utils.data.sampler import RandomSampler, SequentialSampler
 from dataloader import loadWav, padStart, padEnd
 import numpy as np
 
-def batchify(f):
-    samplesVector = []
-    targetsVector = []
-    
-    # f is [ [ sample1InputVector, sample1TargetVector ], ... ] 
-    for s in f:
-       samplesVector += [s[0]]
-       targetsVector += [s[1]] 
-
-    return [np.array(samplesVector), np.array(targetsVector)]
-
-class WavFile:
-
-    rawData = None
-    processedData = []
+class LazyDataset(Dataset):
 
     def __init__(self, data, procData=None):
+        super(LazyDataset, self).__init__()
         self.rawData = data
         if type(procData) is np.ndarray:
             self.processedData = procData
     
     # Returns an input vector and the target value in a list
     # Format : [ [List of Input Vectors], TargetValue ] 
-    def getSample(self, i):
+    def __getitem__(self, i):
 
-        TargetValue = self.processedData[i]
+        TargetValue = torch.Tensor([self.processedData[i]])
         # Pad data if it's before or after the end of the file.
         if i < 0 or i > len(self.rawData):
             return np.zeros(INPUT_VECTOR_SIZE)
@@ -49,13 +38,17 @@ class WavFile:
         InputVector = np.concatenate((
             (firstHalf, secondHalf)))
 
-        InputVector = np.array([ [element] for element in InputVector])
+        InputVector = torch.Tensor([ [element] for element in InputVector])
 
         return [InputVector, TargetValue]
 
-    def __get_item__(self, key):
-        return format(self, key) 
-    def __set_item__(self, key, value):
-        rawData[key] = value
-    def len(self):
+    def __len__(self):
         return len(self.rawData)
+
+    def randomSampler(self):
+        return DataLoader(self, batch_size=BATCH_SIZE, sampler=RandomSampler(self),
+                num_workers=0)
+
+    def sequentialSampler(self):
+        return DataLoader(self, batch_size=BATCH_SIZE, sampler=SequentialSampler(self),
+                num_workers=0)

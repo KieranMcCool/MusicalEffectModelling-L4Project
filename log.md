@@ -193,3 +193,9 @@
 * Started moving run-time code into main.py so that net.py just contains the model and functions directly related to it.
     - Will be easier to reason about code base when every component is in its distinct location
     - Means I can look into adding command line arguments without ending up with a huge number of lines detracting from the pytorch specific code.
+
+## 12/12/17 - 3 Hours
+
+* Refactored data management code to extend PyTorch's DataLoader class, this makes it a lot faster preparing data as it is automatically done on multiple threads.
+    - I noticed that GPU acceleration wasn't having the effect I thought it would with GPU usage only hitting 5% for a few seconds then dropping. I think this was an issue with my random sampling being slow. 
+    - PyTorch's RandomSampler class is proving to be much faster. Hopefully I'll be able to saturate the GPU with work now.

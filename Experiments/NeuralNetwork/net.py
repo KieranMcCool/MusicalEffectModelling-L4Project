@@ -7,7 +7,7 @@ from spectogram import spectogram
 import numpy as np
 import globals
 from dataloader import loadWav, writeWav
-from data import WavFile, batchify
+from data import LazyDataset
 from os import walk
 from random import randrange
 
@@ -40,11 +40,10 @@ def testOutput(milestone):
     iteration = 1
     fname = './model_outputs/test.wav'
     pname = './model_outputs/testoutput.wav'
-    CurrentData = WavFile(loadWav(fname), procData=loadWav(pname) )
+    CurrentData = LazyDataset(loadWav(fname), procData=loadWav(pname) )
     output = []
-    for b in range(0, CurrentData.len() - globals.BATCH_SIZE, globals.BATCH_SIZE):
-        batch = batchify([CurrentData.getSample(b + i) for i in range(globals.BATCH_SIZE)])
-        pred = train(batch, training=False, filename='testing')
+    for i, b in enumerate(CurrentData.sequentialSampler()):
+        pred = train(b, training=False, filename='testing')
         pred = [ p[0] for p in pred ] 
         output += pred
     outputName = './model_outputs/%d.wav' % milestone
@@ -55,10 +54,10 @@ def testOutput(milestone):
 
 def train(data, training=True, filename=''):
     global iteration
-    
+
     # Get Input and target from data
-    inputVector = torch.Tensor(data[0])
-    target = torch.Tensor([data[1]])
+    inputVector = data[0]
+    target = data[1]
     
     # Encapsulate in PyTorch Variable
     x = Variable(inputVector)
@@ -79,10 +78,6 @@ def train(data, training=True, filename=''):
 
     return y_pred.data
 
-def randomSampler(data):
-    return batchify([data.getSample(randrange(0, 
-        data.len())) for i in range(globals.BATCH_SIZE)])
-            
 def main():
     def loadData():
         getFiles = lambda x : ([ '%s/%s' % (x,  l) 
@@ -98,11 +93,10 @@ def main():
         for file, pFile in zip(dryFiles, wetFiles):
            dryData = dryData  + list(loadWav(file))
            wetData = wetData + list(loadWav(pFile))
-        return WavFile(np.array(dryData), np.array(wetData))
+        return LazyDataset(np.array(dryData), np.array(wetData))
 
     CurrentData = loadData()
-    for i in range(CurrentData.len()):
-        data = randomSampler(CurrentData)
+    for i, data in enumerate(CurrentData.randomSampler()):
         train(data)
         if iteration % globals.OUTPUT_FREQUENCY == 0 :
             testOutput(iteration)
