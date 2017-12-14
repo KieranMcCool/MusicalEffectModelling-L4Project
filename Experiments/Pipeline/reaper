@@ -1,8 +1,6 @@
-/Users/kmccool/Documents/Notes/Level4Project-Docs/Experiments/Pipeline/model_outputs/testoutput.wav
- /Users/kmccool/Documents/Notes/Level4Project-Docs/Experiments/Pipeline/model_outputs/test.wav
- /Users/kmccool/Documents/Notes/Level4Project-Docs/Experiments/Pipeline/model_outputs/processed/test.wav
+/Users/kmccool/Documents/Notes/Level4Project-Docs/Experiments/Pipeline/model_outputs/test.wav
  <CONFIG
-FXCHAIN "/Users/kmccool/Documents/Notes/Level4Project-Docs/Experiments/Pipeline/ts808.RfxChain"
-OUTPATH "/Users/kmccool/Documents/Notes/Level4Project-Docs/Experiments/Pipeline/model_outputs/processed"
-<RENDERPRESET render 0 0 0 0 3 0>
->
+    FXCHAIN "/Users/kmccool/Documents/Notes/Level4Project-Docs/Experiments/Pipeline/SignalChain/ts8082.RfxChain"
+    OUTPATH "/Users/kmccool/Documents/Notes/Level4Project-Docs/Experiments/Pipeline/model_outputs/processed"
+    <RENDERPRESET render 0 0 0 0 3 0>
+    >

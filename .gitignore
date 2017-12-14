@@ -107,3 +107,4 @@ venv.bak/
 *.png
 *.model
 DS_Store
+.DS_Store
