@@ -199,3 +199,32 @@
 * Refactored data management code to extend PyTorch's DataLoader class, this makes it a lot faster preparing data as it is automatically done on multiple threads.
     - I noticed that GPU acceleration wasn't having the effect I thought it would with GPU usage only hitting 5% for a few seconds then dropping. I think this was an issue with my random sampling being slow. 
     - PyTorch's RandomSampler class is proving to be much faster. Hopefully I'll be able to saturate the GPU with work now.
+
+## 15/12/17 - 2 Hours
+
+* Tried out the LSTM layer of PyTorch.
+    - Needed refactoring of dataloader as we were doing a 200x64x1 tensor, needed a 200x1x64 tensor.
+    - Doesn't seem to learn very quickly, nor does it have much success - even with the basic distortions that we had decent success with previously.
+
+## 16/12/17 - 2 Hours
+
+* Tried convolutional and LSTM network with a short chorus effect. 
+    - Doesn't seem to capture any properties of the effect...
+    - Unsure if random sampling can give it the awareness of time based effects.
+
+## 20/12/17 - 1 Hour
+
+* Experimented with larger input vectors.
+    - About a tenth of a seconds worth seems to produce a little bit of the chorus effect.
+    - Seems to distort though. Unsure if this is perhaps due to lack of variation in volume in training data.
+
+## 4/01/17 - 3 Hours
+
+* Code cleanup in net.py
+    - Moved a lot of the code into the model class so you can say model.train() rather than having the model be global and implicit
+    - Will be useful when we move to main.py for controlling program
+* CUDA is now toggled based on availability, will add a command line option to override in main.py
+* Played with dilation values and fully connected architecture.
+    - Still no closer to replicating chorus
+    - Plan to try with RNN/LSTM next
+    - Also plan to try add some more variety to test data in case poor results are a result of test data being drastically different to real world data.

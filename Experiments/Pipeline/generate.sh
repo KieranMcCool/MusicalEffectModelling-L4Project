@@ -4,33 +4,43 @@ rm -rf model_outputs
 mkdir dataset
 mkdir model_outputs
 
+cp training_music/*.wav dataset
+
+# Generate Dataset
 ./main.py -n $1 -s $2
 
-echo $(find dataset -iname \*.wav -exec echo "$(pwd)/{}\n"  \;) \
-    "<CONFIG
-    FXCHAIN \"$(pwd)/$3\"
-    OUTPATH \"$(pwd)/dataset/processed\"
+# Set up reaper batch file
+find dataset -iname \*.wav -exec printf "%q\n" `winepath -w {}` \; | tr -d "'" > reaper
+echo "<CONFIG
+    FXCHAIN \"$(winepath -w $(pwd)/$3)\"
+    OUTPATH \"$(winepath -w $(pwd)/dataset/processed)\"
     <RENDERPRESET render 0 0 0 0 3 0>
-    >" > reaper \
-&& /Applications/REAPER64.app/Contents/MacOS/REAPER -newinst -batchconvert reaper
+>" >> reaper
 
-find ./dataset/processed/ -name '*.wav' |  while read line ; do
-mv "$line" "$(echo $line | sed 's|/- ||g')";
+# run reaper
+wine ~/.reaper_install/reaper.exe newinst -batchconvert $(winepath -w reaper)
+
+# rename output files
+for f in ./dataset/processed/*.wav; do
+    mv "$f" "$(echo $f | sed 's|- ||g')"
 done;
 
-cp ./testfiles/* ./model_outputs/
+# Populate test files
+cp ./test_files/* ./model_outputs/
 
-echo $(find model_outputs -iname \*.wav -exec echo "$(pwd)/{}\n"  \;) \
-    "<CONFIG
-    FXCHAIN \"$(pwd)/$3\"
-    OUTPATH \"$(pwd)/model_outputs/processed\"
+# Set up reaper batch file
+find model_outputs -iname \*.wav -exec printf "%q\n" `winepath -w {}` \; | tr -d "'" > reaper
+echo "<CONFIG
+    FXCHAIN \"$(winepath -w $(pwd)/$3)\"
+    OUTPATH \"$(winepath -w $(pwd)/model_outputs/processed)\"
     <RENDERPRESET render 0 0 0 0 3 0>
-    >" > reaper \
-&& /Applications/REAPER64.app/Contents/MacOS/REAPER -newinst -batchconvert reaper
+>" >> reaper
 
-find ./model_outputs/processed/ -name '*.wav' |  while read line ; do
-mv "$line" "$(echo $line | sed 's|/- ||g')";
+# run reaper
+wine ~/.reaper_install/reaper.exe newinst -batchconvert $(winepath -w reaper)
+
+# rename output files
+for f in ./model_outputs/processed/*.wav; do
+    mv "$f" "$(echo $f | sed 's|- ||g')"
 done;
 
-rm reaper
-rm reaper.log

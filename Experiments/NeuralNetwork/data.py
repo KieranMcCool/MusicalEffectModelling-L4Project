@@ -17,7 +17,7 @@ class LazyDataset(Dataset):
     # Format : [ [List of Input Vectors], TargetValue ] 
     def __getitem__(self, i):
 
-        TargetValue = torch.Tensor([self.processedData[i]])
+        TargetValue = torch.Tensor([[self.processedData[i]]])
         # Pad data if it's before or after the end of the file.
         if i < 0 or i > len(self.rawData):
             return np.zeros(INPUT_VECTOR_SIZE)
@@ -38,7 +38,7 @@ class LazyDataset(Dataset):
         InputVector = np.concatenate((
             (firstHalf, secondHalf)))
 
-        InputVector = torch.Tensor([ [element] for element in InputVector])
+        InputVector = torch.Tensor([[element for element in InputVector]])
 
         return [InputVector, TargetValue]
 
@@ -47,8 +47,8 @@ class LazyDataset(Dataset):
 
     def randomSampler(self):
         return DataLoader(self, batch_size=BATCH_SIZE, sampler=RandomSampler(self),
-                num_workers=0)
+                num_workers=4)
 
     def sequentialSampler(self):
-        return DataLoader(self, batch_size=BATCH_SIZE, sampler=SequentialSampler(self),
-                num_workers=0)
+        return DataLoader(self, batch_size=BATCH_SIZE * 2, sampler=SequentialSampler(self),
+                num_workers=4)

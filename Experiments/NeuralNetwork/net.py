@@ -11,72 +11,82 @@ from data import LazyDataset
 from os import walk
 from random import randrange
 
-loss_fn = torch.nn.MSELoss(size_average=False)
 learning_rate = 1e-3
-iteration = 1
 
 class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
+        
+        # Model Architecture
         self.conv = nn.Sequential(
-                nn.Conv1d(64, 32, 1, stride=4), nn.ReLU(),
-                nn.MaxPool1d(1), nn.ReLU())
+            nn.BatchNorm1d(1),
+            nn.Conv1d(1, 128, 1, dilation=1), nn.ReLU(),
+            nn.Conv1d(128, 64, 1, dilation=2), nn.ReLU(), 
+            nn.Conv1d(64, 32, 1, dilation=4), nn.ReLU(), 
+            nn.MaxPool1d(1), nn.ReLU())
         self.lin = nn.Sequential(
-                nn.Linear(32, 16), nn.ReLU(),
-                nn.Linear(16, 1))
-                
+            nn.Linear(32 * globals.INPUT_VECTOR_SIZE, 512), nn.ReLU(),
+            nn.Linear(512, 256), nn.ReLU(), 
+            nn.Linear(256, 100), nn.ReLU(), 
+            nn.Linear(100, 1))
+
+        self.iteration = 1
+        self.optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate)
+        self.loss_fn = torch.nn.MSELoss(size_average=False)
+
+        if torch.cuda.is_available():
+            self = self.cuda()
+
     def forward(self, x):
         x = self.conv(x)
         x = x.view(x.size(0), -1)
         x = self.lin(x)
         return x
 
-model = Model()
-optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
+    def train(self, data, training=True, filename=''):
+        global iteration
 
-def testOutput(milestone):
-    global iteration
-    backup = iteration
-    iteration = 1
-    fname = './model_outputs/test.wav'
-    pname = './model_outputs/testoutput.wav'
-    CurrentData = LazyDataset(loadWav(fname), procData=loadWav(pname) )
-    output = []
-    for i, b in enumerate(CurrentData.sequentialSampler()):
-        pred = train(b, training=False, filename='testing')
-        pred = [ p[0] for p in pred ] 
-        output += pred
-    outputName = './model_outputs/%d.wav' % milestone
-    writeWav(np.array(output), outputName)
-    spectogram(outputName)
-    iteration = backup
+        # Get Input and target from data
+        if torch.cuda.is_available():
+            inputVector = data[0].cuda()
+            target = data[1].cuda()
+        else:
+            inputVector = data[0].cuda()
+            target = data[1].cuda()
 
+        # Encapsulate in PyTorch Variable
+        x = Variable(inputVector)
+        y = Variable(target, requires_grad=False)
 
-def train(data, training=True, filename=''):
-    global iteration
+        # Run input through model and compute loss
+        y_pred = self(x)
+        loss = self.loss_fn(y_pred, y)
 
-    # Get Input and target from data
-    inputVector = data[0]
-    target = data[1]
-    
-    # Encapsulate in PyTorch Variable
-    x = Variable(inputVector)
-    y = Variable(target, requires_grad=False)
+        if self.iteration % 100 == 0 and True:
+            print(self.iteration if training else '', filename, loss.data[0])
 
-    # Run input through model and compute loss
-    y_pred = model(x)
-    loss = loss_fn(y_pred, y)
-    if iteration % 100 == 0 and True:
-        print(iteration if train else '', filename, loss.data[0])
+        # If training then backwards propagate, otherwise save prediction for output
+        if training:
+            self.optimizer.zero_grad()
+            loss.backward()
+            self.optimizer.step()
+        self.iteration += 1
 
-    # If training then backwards propagate, otherwise save prediction for output
-    if training:
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-    iteration += 1
+        return y_pred.data
 
-    return y_pred.data
+    def fileOutput(self, inputFile, outputFile, testFile=None):
+        backup = self.iteration
+        self.iteration = 1
+        CurrentData = LazyDataset(loadWav(inputFile), 
+                procData=loadWav(testFile) if testFile != None else None) # test file used to calculate loss if that's important to you (optional)
+        output = []
+        for i, b in enumerate(CurrentData.sequentialSampler()):
+            pred = self.train(b, training=False, filename=inputFile)
+            pred = [ p[0] for p in pred ] 
+            output += pred
+        writeWav(np.array(output), outputFile)
+        spectogram(outputFile)
+        self.iteration = backup
 
 def main():
     def loadData():
@@ -94,12 +104,15 @@ def main():
            dryData = dryData  + list(loadWav(file))
            wetData = wetData + list(loadWav(pFile))
         return LazyDataset(np.array(dryData), np.array(wetData))
+    def doCheckPoint(model, name):
+        model.fileOutput('./model_outputs/test.wav', "./model_outputs/%d.wav" %  name, testFile='model_outputs/testoutput.wav')
+        torch.save(model.state_dict(), './model_checkpoints/%d.model' % name)
 
+    model = Model()
     CurrentData = loadData()
     for i, data in enumerate(CurrentData.randomSampler()):
-        train(data)
-        if iteration % globals.OUTPUT_FREQUENCY == 0 :
-            testOutput(iteration)
-            torch.save(model.state_dict(), 
-                './model_checkpoints/%d.model' % iteration)
+        model.train(data)
+        if model.iteration % globals.OUTPUT_FREQUENCY == 0:
+            doCheckPoint(model, model.iteration)
+    doCheckPoint(model, 'final')
 main()
