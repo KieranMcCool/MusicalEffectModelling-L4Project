@@ -228,3 +228,8 @@
     - Still no closer to replicating chorus
     - Plan to try with RNN/LSTM next
     - Also plan to try add some more variety to test data in case poor results are a result of test data being drastically different to real world data.
+
+## 7/01/17 - 2 Hours
+
+* Moved network architecture into subclasses of model so they can be selected and changed easily.
+    - Sick of making changes to architecture and forgetting what the originals were! :(

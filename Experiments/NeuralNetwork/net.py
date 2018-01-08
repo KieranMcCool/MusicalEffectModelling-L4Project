@@ -16,32 +16,7 @@ learning_rate = 1e-3
 class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
-        
-        # Model Architecture
-        self.conv = nn.Sequential(
-            nn.BatchNorm1d(1),
-            nn.Conv1d(1, 128, 1, dilation=1), nn.ReLU(),
-            nn.Conv1d(128, 64, 1, dilation=2), nn.ReLU(), 
-            nn.Conv1d(64, 32, 1, dilation=4), nn.ReLU(), 
-            nn.MaxPool1d(1), nn.ReLU())
-        self.lin = nn.Sequential(
-            nn.Linear(32 * globals.INPUT_VECTOR_SIZE, 512), nn.ReLU(),
-            nn.Linear(512, 256), nn.ReLU(), 
-            nn.Linear(256, 100), nn.ReLU(), 
-            nn.Linear(100, 1))
-
         self.iteration = 1
-        self.optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate)
-        self.loss_fn = torch.nn.MSELoss(size_average=False)
-
-        if torch.cuda.is_available():
-            self = self.cuda()
-
-    def forward(self, x):
-        x = self.conv(x)
-        x = x.view(x.size(0), -1)
-        x = self.lin(x)
-        return x
 
     def train(self, data, training=True, filename=''):
         global iteration
@@ -51,8 +26,8 @@ class Model(nn.Module):
             inputVector = data[0].cuda()
             target = data[1].cuda()
         else:
-            inputVector = data[0].cuda()
-            target = data[1].cuda()
+            inputVector = data[0]            
+            target = data[1]
 
         # Encapsulate in PyTorch Variable
         x = Variable(inputVector)
@@ -88,6 +63,63 @@ class Model(nn.Module):
         spectogram(outputFile)
         self.iteration = backup
 
+class LSTMModel(Model):
+    def __init__(self):
+        super(LSTMModel, self).__init__()
+        # Model Architecture
+        self.norm = nn.BatchNorm1d(1)
+        self.lstm1 = nn.LSTM(500, 200, 4)
+        self.lstm2 = nn.Sequential(nn.ReLU(), 
+                nn.LSTM(200, 100, 6))
+        self.fc = nn.Sequential(
+                nn.ReLU(),
+                nn.Linear(100, 25), nn.ReLU(),
+                nn.Linear(25, 10), nn.ReLU(),
+                nn.Linear(10, 1))
+
+        self.optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate)
+        self.loss_fn = torch.nn.MSELoss(size_average=False)
+
+        if torch.cuda.is_available():
+            self = self.cuda()
+
+    def forward(self, x):
+        x = self.norm(x)
+        x = self.lstm1(x)[0]
+        x = self.lstm2(x)[0]
+        x = x.view(x.size(0), -1)
+        x = self.fc(x)
+        return x
+
+class ConvModel(Model):
+    def __init__(self):
+        super(ConvModel, self).__init__()
+        # Model Architecture
+        self.conv = nn.Sequential(
+            nn.BatchNorm1d(1),
+            nn.Conv1d(1, 128, 1, dilation=1), nn.ReLU(),
+            nn.Conv1d(128, 64, 1, dilation=2), nn.ReLU(), 
+            nn.Conv1d(64, 32, 1, dilation=4), nn.ReLU(), 
+            nn.MaxPool1d(1), nn.ReLU())
+        self.lin = nn.Sequential(
+            nn.Linear(32 * globals.INPUT_VECTOR_SIZE, 512), nn.ReLU(),
+            nn.Linear(512, 256), nn.ReLU(), 
+            nn.Linear(256, 100), nn.ReLU(), 
+            nn.Linear(100, 1))
+        self.optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate)
+        self.loss_fn = torch.nn.MSELoss(size_average=False)
+
+        if torch.cuda.is_available():
+            self = self.cuda()
+
+    def forward(self, x):
+        x = self.conv(x)
+        x = x.view(x.size(0), -1)
+        x = self.lin(x)
+        print(x)
+        return x
+
+
 def main():
     def loadData():
         getFiles = lambda x : ([ '%s/%s' % (x,  l) 
@@ -108,11 +140,11 @@ def main():
         model.fileOutput('./model_outputs/test.wav', "./model_outputs/%d.wav" %  name, testFile='model_outputs/testoutput.wav')
         torch.save(model.state_dict(), './model_checkpoints/%d.model' % name)
 
-    model = Model()
+    model = LSTMModel()
     CurrentData = loadData()
     for i, data in enumerate(CurrentData.randomSampler()):
         model.train(data)
         if model.iteration % globals.OUTPUT_FREQUENCY == 0:
             doCheckPoint(model, model.iteration)
-    doCheckPoint(model, 'final')
+    doCheckPoint(model, -1)
 main()
