@@ -183,7 +183,7 @@
 
 * Wrote up minutes from meeting
 
-## 5/11/2017 - 4 Hours
+## 5/12/2017 - 4 Hours
 
 * Got batches of 200 working
     - Hoping to be able to randomly choose samples to train in a given batch
