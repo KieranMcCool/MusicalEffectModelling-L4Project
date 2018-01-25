@@ -108,3 +108,5 @@ venv.bak/
 *.model
 DS_Store
 .DS_Store
+*.RfxChain
+*.rfxchain

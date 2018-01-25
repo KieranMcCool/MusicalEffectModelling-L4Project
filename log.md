@@ -1,4 +1,6 @@
 ## 29/09/2017 - 3 Hours
+        irint(x)
+        exit()
 
 * Began reading the first chapter of colah.github.io
 * Watched YouTube Lectures on machine learning and neural networks
@@ -233,3 +235,49 @@
 
 * Moved network architecture into subclasses of model so they can be selected and changed easily.
     - Sick of making changes to architecture and forgetting what the originals were! :(
+
+## 14/01/17 - 2 Hours
+
+* Experimented with LSTM networks, with little success.
+    - Tried single LSTM, various different input vector sizes. Didn't perform as well as convolutional network for any effect.
+    - Tried stacking LSTMs, still no joy
+    - Tried LSTMs -> Linear Layers and Linear Layers -> LSTMs - Still no results
+    - Beginning to worry that LSTMS might not be practical for task?
+
+## 17/01/17 - 2 Hours
+
+* Worked on pipeline to allow easier inclusion of real world music / additional sound files to investigate potential that overfitting was the issue.
+    - Now a directory in the pipeline source where pre-prepared audio data can be stored for inclusion. 
+    - Also added one for test files in case I want to use multiple test files for whatever reason.
+* Cleaned up generate script a bit to allow easier change from MacOS to Linux as required.
+* Trained some models on real world music data.
+    - Doesn't seem to help with my issue with the LSTMs but seems to be the way to go for the convolutional network.
+
+## 24/01/17 - 3 Hours
+
+* Went back to basic with LSTM trying to see if it could replicate the input by training on identical files since nothing was working with chorus etc.
+    - Single LSTM layer with single sample input.
+    - Single output which should be the same as the input.
+    - Doesn't learn that either...
+* Trained some convolutional models on distortion for ABY testing.
+
+## 24/01/17 - start 9pm
+
+* Spent some time prettying up the generate script
+    - Uses functions instead of duplicating code with different directories.
+    - Much shorter and much more maintainable
+* Merged the pipeline and neural network folders
+    - Was keeping them apart for sake of not having too many source files in one folder but I think it's fine
+    - Is far more convenient
+* Added some debug code for seeing what the network is doing internally, can be disabled as needed.
+    - Needed to diagnose issues with LSTM.
+    - Lets me see what the target and prediction is at a given iteration
+    - Also allows me to see what the shape of the input and output vectors are just for troubleshooting.
+* Played some more with LSTMs, experimenting with batch sizes and properties on chorus.
+    - Still distorting...
+    - Trained for 100,000 iterations outputting ever 10,000
+    - Some got clos-ish
+* Started writing my random sequential sampler
+    - Samples n items sequentially from a random index
+    - Seems to work....
+* Now LSTM seems to just output the same as input!!!?????

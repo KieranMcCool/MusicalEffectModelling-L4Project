@@ -10,7 +10,6 @@ low = 80
 high = 1200
 duration = 10
 sampleRate = 44100
-reaperLocation = '/Applications/REAPER64.app/Contents/MacOS/REAPER'
 
 def sliceAudio(input, destination, index):
     # Insert note slice into output at random location,

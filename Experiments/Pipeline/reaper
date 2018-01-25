@@ -1,6 +1,0 @@
-Z:\home\kmccool\Documents\Notes\Level4Project-Docs\Experiments\Pipeline\model_outputs/test.wav
-<CONFIG
-    FXCHAIN "Z:\home\kmccool\Documents\Notes\Level4Project-Docs\Experiments\Pipeline\signal_chains\Chorus.rfxchain"
-    OUTPATH "Z:\home\kmccool\Documents\Notes\Level4Project-Docs\Experiments\Pipeline\model_outputs\processed"
-    <RENDERPRESET render 0 0 0 0 3 0>
->
