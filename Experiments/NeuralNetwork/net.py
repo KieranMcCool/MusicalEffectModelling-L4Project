@@ -39,7 +39,7 @@ class Model(nn.Module):
 
         if self.iteration % 100 == 0 and True:
             print(self.iteration if training else '', filename, loss.data[0])
-            if self.iteration % 200 == 0 and True:
+            if self.iteration % 200 == 0 and False:
                 print('\ttarget = %s prediction = %s' % (y.shape, y_pred.shape))
                 print('\ttarget = %s prediction = %s\n' % (y.data[0][0][0], y_pred.data[0][0]))
 
@@ -70,7 +70,10 @@ class LSTMModel(Model):
     def __init__(self):
         super(LSTMModel, self).__init__()
         # Model Architecture
-        self.lstm1 = nn.LSTM(1, 1, 5, batch_first=True)
+        self.lstm1 = nn.LSTM(1, 200, 4)
+        self.fc = nn.Sequential(
+                nn.ReLU(),
+                nn.Linear(200, 1))
 
         self.optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate)
         self.loss_fn = torch.nn.MSELoss(size_average=False)
@@ -81,6 +84,8 @@ class LSTMModel(Model):
     def forward(self, x):
         x = self.lstm1(x)
         x = x[0]
+        x = x.view(x.size(0), -1)
+        x = self.fc(x)
         return x
 
 class ConvModel(Model):
@@ -148,7 +153,7 @@ def main():
         model.fileOutput('./model_outputs/test.wav', "./model_outputs/%d output.wav" %  name, testFile='model_outputs/processed/test.wav')
         torch.save(model.state_dict(), './model_checkpoints/%d.model' % name)
 
-    model = ConvModel()
+    model = LSTMModel()
     CurrentData = loadData()
     for i, data in enumerate(CurrentData.randomSequentialSampler()):
         model.train(data)

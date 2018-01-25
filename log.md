@@ -261,7 +261,7 @@
     - Doesn't learn that either...
 * Trained some convolutional models on distortion for ABY testing.
 
-## 24/01/17 - start 9pm
+## 24/01/17 - 4 Hours
 
 * Spent some time prettying up the generate script
     - Uses functions instead of duplicating code with different directories.
@@ -281,3 +281,11 @@
     - Samples n items sequentially from a random index
     - Seems to work....
 * Now LSTM seems to just output the same as input!!!?????
+
+## 25/01/17 - 2 Hours
+
+* Wrote up minutes from last two meetings
+* Changed LSTM to have much larger hidden size and number of layers
+* Spent some time training the network to evaluate the effect of training.
+    - Couldn't complete as my MacBook is nowhere near fast enough to train on.
+    - Loss looking good though!
