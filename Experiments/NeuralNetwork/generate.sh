@@ -60,6 +60,6 @@ function cleanup {
 setup 2> /dev/null
 # Generate Dataset
 ./genrate.py -n $1 -s $2
-reaper dataset $3
-reaper model_outputs $3
+reaperWine dataset $3
+reaperWine model_outputs $3
 cleanup

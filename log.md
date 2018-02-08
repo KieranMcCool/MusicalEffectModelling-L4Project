@@ -1,6 +1,4 @@
 ## 29/09/2017 - 3 Hours
-        irint(x)
-        exit()
 
 * Began reading the first chapter of colah.github.io
 * Watched YouTube Lectures on machine learning and neural networks
@@ -220,7 +218,7 @@
     - About a tenth of a seconds worth seems to produce a little bit of the chorus effect.
     - Seems to distort though. Unsure if this is perhaps due to lack of variation in volume in training data.
 
-## 4/01/17 - 3 Hours
+## 4/01/18 - 3 Hours
 
 * Code cleanup in net.py
     - Moved a lot of the code into the model class so you can say model.train() rather than having the model be global and implicit
@@ -231,12 +229,12 @@
     - Plan to try with RNN/LSTM next
     - Also plan to try add some more variety to test data in case poor results are a result of test data being drastically different to real world data.
 
-## 7/01/17 - 2 Hours
+## 7/01/18 - 2 Hours
 
 * Moved network architecture into subclasses of model so they can be selected and changed easily.
     - Sick of making changes to architecture and forgetting what the originals were! :(
 
-## 14/01/17 - 2 Hours
+## 14/01/18 - 2 Hours
 
 * Experimented with LSTM networks, with little success.
     - Tried single LSTM, various different input vector sizes. Didn't perform as well as convolutional network for any effect.
@@ -244,7 +242,7 @@
     - Tried LSTMs -> Linear Layers and Linear Layers -> LSTMs - Still no results
     - Beginning to worry that LSTMS might not be practical for task?
 
-## 17/01/17 - 2 Hours
+## 17/01/18 - 2 Hours
 
 * Worked on pipeline to allow easier inclusion of real world music / additional sound files to investigate potential that overfitting was the issue.
     - Now a directory in the pipeline source where pre-prepared audio data can be stored for inclusion. 
@@ -253,7 +251,7 @@
 * Trained some models on real world music data.
     - Doesn't seem to help with my issue with the LSTMs but seems to be the way to go for the convolutional network.
 
-## 24/01/17 - 3 Hours
+## 24/01/18 - 3 Hours
 
 * Went back to basic with LSTM trying to see if it could replicate the input by training on identical files since nothing was working with chorus etc.
     - Single LSTM layer with single sample input.
@@ -261,7 +259,7 @@
     - Doesn't learn that either...
 * Trained some convolutional models on distortion for ABY testing.
 
-## 24/01/17 - 4 Hours
+## 24/01/18 - 4 Hours
 
 * Spent some time prettying up the generate script
     - Uses functions instead of duplicating code with different directories.
@@ -282,10 +280,32 @@
     - Seems to work....
 * Now LSTM seems to just output the same as input!!!?????
 
-## 25/01/17 - 2 Hours
+## 25/01/18 - 4 Hours
 
 * Wrote up minutes from last two meetings
 * Changed LSTM to have much larger hidden size and number of layers
 * Spent some time training the network to evaluate the effect of training.
-    - Couldn't complete as my MacBook is nowhere near fast enough to train on.
-    - Loss looking good though!
+    - Tried 200 Hidden features, 6 layers, doesn't work. Produced distorted sound
+    - Tried 500 hidden features, 6 layers, doesn't work. Now reproduces input sound
+    - Tried 800 Hidden features, 6 layers, wavey, worbly effect present but way too much gain.
+    - Tried same again but with a bigger fully connected layer (LSTM -> reLU -> 800-> reLU -> 400 -> reLU ->200->1)
+
+## 01/02/18 - 3 Hours
+
+* Read up on some similar projects using LSTMs for time series prediction.
+	- Example code on GitHub
+* Worked on adapting this to my project
+* Got it working but LSTM Cell is so slow to train that I can't actually get an output from it.
+	- No CUDA support :(
+
+## 03/02/18 - 2 Hours
+
+* Read up on Nebula VST and researched what it can/can't do as well as how it does it.
+	- No information on how present version works due to patents.
+
+## 06/02/18 - 2 Hours
+
+* Researched and played with a bunch of VSTs for finalising my list of effects.
+	- Grouping as Filters, Distortion/Boost, and Time-Based
+	- Noise gate, TS808, Fuzz, Compressor, Reverb, Chorus, and Delay.
+	- 3 Presets for first 5, 6 for last two.
