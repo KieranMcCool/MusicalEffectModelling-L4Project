@@ -75,3 +75,16 @@ Time permitting, it might also be cool to see if we can train models separately 
 
 # Notes
 
+* Filters - Carefuly with choices, hard to model filters.
+    - Impulse response, modelling non-linearity.
+* Voxengo Fuzz, Guitar amp simulator, boogex.
+* Regular and multiband compressor.
+    - 3 Band compressor.
+* Delay less interesting.
+    - Could do dub delay, saturation and frequency distortion.
+* Train signal chain end-to-end.
+* Lacinato cloud based ABX testing
+* Dilated convolutions.
+* Wavenet, classifications as 8 bit.
+    - Have a careful read of it.
+
