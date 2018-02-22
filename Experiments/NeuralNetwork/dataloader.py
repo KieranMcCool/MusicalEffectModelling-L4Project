@@ -1,4 +1,5 @@
 from os import walk
+import audioread
 from librosa.core import load
 from librosa.output import write_wav
 import torch
@@ -19,3 +20,20 @@ def padEnd(array, padding):
 def padStart(array, padding):
     pad = np.zeros(padding)
     return np.concatenate((pad, array))
+
+def oneHotEncode(i, bits=globals.SAMPLE_BIT_DEPTH):
+    bits = 2 ** bits
+    topmost = bits // 2
+    bottommost = -1 * (bits // 2)
+    Map = lambda x : int(np.interp(x, [bottommost, topmost], [0, bits]))
+
+    x = np.zeros(bits)
+    x[Map(i)] = 1
+    return x
+
+def oneHotDecode(l, bits=globals.SAMPLE_BIT_DEPTH):
+    bits = 2 ** bits
+    topmost = bits // 2
+    bottommost = -1 * (bits // 2)
+    Map = lambda x : int(np.interp(x, [0, bits], [bottommost, topmost]))
+    return Map(np.argmax(l))

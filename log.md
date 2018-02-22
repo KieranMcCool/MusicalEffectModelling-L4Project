@@ -309,3 +309,33 @@
 	- Grouping as Filters, Distortion/Boost, and Time-Based
 	- Noise gate, TS808, Fuzz, Compressor, Reverb, Chorus, and Delay.
 	- 3 Presets for first 5, 6 for last two.
+
+## 08/02/18 - 8 Hours
+
+Found example of LSTM example on GitHub using LSTMCell layer instead of LSTMs
+    - Figured I'd try and get that working
+    - LSTMCell has no GPU acceleration
+    - Also not recommended for general use, as LSTM was designed to replace it.
+    - Still worth a try?
+* Looked in some more detail about Nebula: What it can/'t do.
+    - Version 2 uses Voltera kernels to capture non-linear behaviour with a memory like property
+    - Also captures non-linearity of distortions and amp sims nicely.
+    - Gets criticism for being difficult to use/unstable.
+    - CPU intensive, a lot of criticism for this
+    - Version 3 getting really good reviews, uses 'dynamic convolutions' however technique is corporate secret and can't find any information on how it works.
+* Impulse response monitoring
+    - Played with impulse monitoring VST in reaper-
+    - Can combine model output and vst output into separate channels of a stereo track and watch the impulse responses in different coloured lines.
+    - Looks pretty good for distortion.
+
+## 15/02/18 - 4 Hours
+
+* Had some bugs appear
+    - LibRosa started reporting that ffmpeg could not be found, turned out to be shoddy error catching on their part and that some input data was corrupted somehow... Regenerating the dataset fixed this (although it took me a while and a reinstallation of the virtual environment to figure this out...)
+    - Misplaced square bracket in a list comprehension broke the code for outputting wav file.
+* Finalised a few of my VST choices
+    - Voxengo Fuzz, Mercurial TS808, GarageBand amp sims.
+* Worked on WaveNet implementation.
+    - Complications with input/output vectors - uncertainty.
+
+

@@ -2,7 +2,7 @@ from globals import INPUT_VECTOR_SIZE, BATCH_SIZE, SAMPLE_RATE
 import torch
 from torch.utils.data import Dataset, DataLoader
 from torch.utils.data.sampler import RandomSampler, SequentialSampler, Sampler
-from dataloader import loadWav, padStart, padEnd
+from dataloader import loadWav, padStart, padEnd, oneHotEncode
 import numpy as np
 from random import shuffle
 
@@ -19,7 +19,8 @@ class LazyDataset(Dataset):
     def __getitem__(self, i):
 
         InputVector = None
-        TargetValue = torch.Tensor([[self.processedData[i]]])
+        TargetValue = torch.Tensor(oneHotEncode(self.processedData[i]))
+
         if INPUT_VECTOR_SIZE == 1:
             InputVector = torch.Tensor([[self.rawData[i]]])
         else:
@@ -43,7 +44,7 @@ class LazyDataset(Dataset):
             InputVector = np.concatenate((
                 (firstHalf, secondHalf)))
 
-            InputVector = torch.Tensor([[element for element in InputVector]])
+            InputVector = torch.Tensor([[iv for iv in InputVector]])
 
         return [InputVector, TargetValue]
 

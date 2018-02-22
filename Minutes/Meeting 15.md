@@ -72,6 +72,3 @@ Time permitting, it might also be cool to see if we can train models separately 
     - Ideally something web-based as this would allow much more data to be gathered via forums/facebook group etc
     - I do also have some people that I want to get to do the test in person, so if I can't get a web-based solution then I'll at least have some results.
     - Need to create maybe 5 to 10 second samples of input, vst output and model output on the same track for evaluation.
-
-# Notes
-

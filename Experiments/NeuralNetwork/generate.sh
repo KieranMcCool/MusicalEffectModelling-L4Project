@@ -25,7 +25,7 @@ function reaper {
     echo "<CONFIG
         FXCHAIN \"$(pwd)/$2\"
         OUTPATH \"$(pwd)/$1/processed\"
-        <RENDERPRESET render 0 0 0 0 3 0>
+        <RENDERPRESET render 0 0 0 0 0 0>
     >" >> reaper
     # run reaper
     /Applications/REAPER64.app/Contents/MacOS/REAPER -newinst -batchconvert reaper

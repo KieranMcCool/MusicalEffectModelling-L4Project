@@ -6,12 +6,13 @@ from torch.autograd import Variable
 from spectogram import spectogram
 import numpy as np
 import globals
-from dataloader import loadWav, writeWav
+from dataloader import loadWav, writeWav, oneHotDecode
 from data import LazyDataset
 from os import walk
 from random import randrange
 
 learning_rate = 1e-3
+CUDA = True
 
 class Model(nn.Module):
     def __init__(self):
@@ -22,7 +23,7 @@ class Model(nn.Module):
         global iteration
 
         # Get Input and target from data
-        if torch.cuda.is_available():
+        if torch.cuda.is_available() and CUDA:
             inputVector = data[0].cuda()
             target = data[1].cuda()
         else:
@@ -59,71 +60,24 @@ class Model(nn.Module):
                 procData=loadWav(testFile) if testFile != None else None) # test file used to calculate loss if that's important to you (optional)
         output = []
         for i, b in enumerate(CurrentData.sequentialSampler()):
-            pred = self.train(b, training=False, filename=inputFile)
-            pred = [ p[0] for p in pred ] 
+            pred = self.train(b, training=False, filename=inputFile).squeeze().tolist()
             output += pred
         writeWav(np.array(output), outputFile)
         spectogram(outputFile)
         self.iteration = backup
 
-class LSTMCellModel(Model):
-    def __init__(self):
-        super(LSTMModel, self).__init__()
-        # Model Architecture
-        self.init = False
-        self.hiddenCells = 200
-
-        self.h_t = None
-        self.c_t = None
-        self.h_t2 = None
-        self.c_t2 = None
-
-        self.lstm1 = nn.LSTMCell(1, self.hiddenCells)
-        self.lstm2 = nn.LSTMCell(self.hiddenCells, self.hiddenCells)
-        self.linear = nn.Sequential(
-                nn.Linear(self.hiddenCells, 1))
-
-        self.optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate)
-        self.loss_fn = torch.nn.MSELoss(size_average=False)
-
-        if torch.cuda.is_available():
-            self = self.cuda()
-
-    def forward(self, x, future=0):
-
-        if not self.init:
-            self.h_t = Variable(torch.zeros(x.size(0), self.hiddenCells).float(), requires_grad=False)
-            self.c_t = Variable(torch.zeros(x.size(0), self.hiddenCells).float(), requires_grad=False)
-            self.h_t2 = Variable(torch.zeros(x.size(0), self.hiddenCells).float(), requires_grad=False)
-            self.c_t2 = Variable(torch.zeros(x.size(0), self.hiddenCells).float(), requires_grad=False)
-
-        outputs = []
-
-        for i, input_t in enumerate(x.chunk(x.size(1), dim=1)):
-            self.h_t, self.c_t = self.lstm1(input_t, (self.h_t, self.c_t))
-            self.h_t2, self.c_t2 = self.lstm2(self.h_t, (self.h_t2, self.c_t2))
-            output = self.linear(self.h_t2)
-            outputs += [output]
-        for i in range(future):# if we should predict the future
-            self.h_t, self.c_t = self.lstm1(output, (self.h_t, self.c_t))
-            self.h_t2, self.c_t2 = self.lstm2(self.h_t, (self.h_t2, self.c_t2))
-            output = self.linear(self.h_t2)
-            outputs += [output]
-        outputs = torch.stack(outputs, 1).squeeze(2)
-        return outputs
-
 class LSTMModel(Model):
     def __init__(self):
         super(LSTMModel, self).__init__()
         # Model Architecture
-        self.lstm1 = nn.LSTM(1, 52, 2)
+        self.lstm1 = nn.LSTM(globals.INPUT_VECTOR_SIZE, 800, 8)
         self.fc = nn.Sequential(
-                nn.Linear(52,1))
+                nn.Linear(800,1))
 
         self.optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate)
         self.loss_fn = torch.nn.MSELoss(size_average=False)
 
-        if torch.cuda.is_available():
+        if torch.cuda.is_available() and CUDA:
             self = self.cuda()
 
     def forward(self, x):
@@ -139,24 +93,29 @@ class ConvModel(Model):
         # Model Architecture
         self.conv = nn.Sequential(
             nn.BatchNorm1d(1),
-            nn.Conv1d(1, 128, 1), nn.ReLU(),
-            nn.Conv1d(128, 64, 1), nn.ReLU(), 
-            nn.Conv1d(64, 32, 1), nn.ReLU(), 
-            nn.MaxPool1d(1), nn.ReLU())
-        self.lin = nn.Sequential(
-            nn.Linear(32 * globals.INPUT_VECTOR_SIZE, 512), nn.ReLU(),
-            nn.Linear(512, 256), nn.ReLU(), 
-            nn.Linear(256, 1))
+            nn.Conv1d(1, 800, 1, dilation=1), nn.ReLU(),
+            nn.Conv1d(800, 800, 1, dilation=2), nn.ReLU(), 
+            nn.Conv1d(800, 800, 1, dilation=4), nn.ReLU(), 
+            nn.Conv1d(800, 800, 1, dilation=8), nn.ReLU(), 
+            nn.Conv1d(800, 800, 1, dilation=16), nn.ReLU(), 
+            nn.Conv1d(800, 800, 1, dilation=32), nn.ReLU(), 
+            nn.Conv1d(800, 800, 1, dilation=64), nn.ReLU(), 
+            nn.Conv1d(800, 800, 1, dilation=128), nn.ReLU(),
+            nn.Conv1d(800, 800, 1, dilation=256))
+        self.fc = nn.Sequential(
+                nn.Linear(800 * globals.INPUT_VECTOR_SIZE, 500), nn.ReLU(),
+                nn.Linear(500, 2**globals.SAMPLE_BIT_DEPTH))
+
         self.optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate)
         self.loss_fn = torch.nn.MSELoss(size_average=False)
 
-        if torch.cuda.is_available():
+        if torch.cuda.is_available() and CUDA:
             self = self.cuda()
 
     def forward(self, x):
         x = self.conv(x)
         x = x.view(x.size(0), -1)
-        x = self.lin(x)
+        x = self.fc(x)
         return x
 
 class LinearModel(Model):
@@ -171,7 +130,7 @@ class LinearModel(Model):
         self.optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate)
         self.loss_fn = torch.nn.MSELoss(size_average=False)
 
-        if torch.cuda.is_available():
+        if torch.cuda.is_available() and CUDA:
             self = self.cuda()
 
     def forward(self, x):
@@ -198,9 +157,9 @@ def main():
         model.fileOutput('./model_outputs/test.wav', "./model_outputs/%d output.wav" %  name, testFile='model_outputs/processed/test.wav')
         torch.save(model.state_dict(), './model_checkpoints/%d.model' % name)
 
-    model = LSTMModel()
+    model = ConvModel()
     CurrentData = loadData()
-    for i, data in enumerate(CurrentData.sequentialSampler()):
+    for i, data in enumerate(CurrentData.randomSequentialSampler()):
         model.train(data)
         if model.iteration % globals.OUTPUT_FREQUENCY == 0:
             doCheckPoint(model, model.iteration)
