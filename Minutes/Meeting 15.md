@@ -72,3 +72,18 @@ Time permitting, it might also be cool to see if we can train models separately 
     - Ideally something web-based as this would allow much more data to be gathered via forums/facebook group etc
     - I do also have some people that I want to get to do the test in person, so if I can't get a web-based solution then I'll at least have some results.
     - Need to create maybe 5 to 10 second samples of input, vst output and model output on the same track for evaluation.
+
+# Notes
+
+* Filters - Carefuly with choices, hard to model filters.
+    - Impulse response, modelling non-linearity.
+* Voxengo Fuzz, Guitar amp simulator, boogex.
+* Regular and multiband compressor.
+    - 3 Band compressor.
+* Delay less interesting.
+    - Could do dub delay, saturation and frequency distortion.
+* Train signal chain end-to-end.
+* Lacinato cloud based ABX testing
+* Dilated convolutions.
+* Wavenet, classifications as 8 bit.
+    - Have a careful read of it.
