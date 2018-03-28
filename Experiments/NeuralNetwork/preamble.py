@@ -2,45 +2,50 @@ import dataloader as d
 import numpy as np
 from random import randrange
 
-# Shorthand for the functions
-ohe = lambda x : d.oneHotEncode(x)
-ohd = lambda x : d.oneHotDecode(x)
-lMap = lambda x,func : [func(e) for e in x]
+def one_hot_encode(data, channels=256):
+    one_hot = np.zeros((data.size, channels), dtype=float)
+    one_hot[np.arange(data.size), data.ravel()] = 1
 
-# Allows you to generate new test data really easily
-testData = lambda : np.array([ [randrange(-100, 100) for x in range(64)] for i in range(10) ])
+    return one_hot
 
-"""
-def oneHotBatchEncoder(batches):
-    outputs = []
-    for batch in batches:
-        for sample in batch:
-           outputs += [ohe(sample)] 
-    return outputs
 
-def oneHotBatchDecoder(batches):
-    outputs = []
-    for batch in batches:
-        for sample in batch:
-           outputs += [ohd(sample)] 
-    return outputs
-"""
+def one_hot_decode(data, axis=1):
+    decoded = np.argmax(data, axis=axis)
 
-def oneHotBatchEncoder(batches):
-    outputs = []
-    encoder = lambda x : ohe(x)
-    mapper = np.vectorize(encoder)
-    for batch in batches:
-        for sample in batch:
-           outputs += [mapper(sample)]
-    return outputs
+    return decoded
 
-def oneHotBatchDecoder(batches):
-    outputs = []
-    encoder = lambda x : ohd(x)
-    mapper = np.vectorize(encoder)
-    for batch in batches:
-        for sample in batch:
-           outputs += [mapper(sample)]
-    return outputs
+
+def mu_law_encode(audio, quantization_channels=256):
+    """
+    Quantize waveform amplitudes.
+    Reference: https://github.com/vincentherrmann/pytorch-wavenet/blob/master/audio_data.py
+    """
+    mu = float(quantization_channels - 1)
+    quantize_space = np.linspace(-1, 1, quantization_channels)
+
+    quantized = np.sign(audio) * np.log(1 + mu * np.abs(audio)) / np.log(mu + 1)
+    quantized = np.digitize(quantized, quantize_space) - 1
+
+    return quantized
+
+
+def mu_law_decode(output, quantization_channels=256):
+    """
+    Recovers waveform from quantized values.
+    Reference: https://github.com/vincentherrmann/pytorch-wavenet/blob/master/audio_data.py
+    """
+    mu = float(quantization_channels - 1)
+
+    expanded = (output / quantization_channels) * 2. - 1
+    waveform = np.sign(expanded) * (
+                   np.exp(np.abs(expanded) * np.log(mu + 1)) - 1
+               ) / mu
+
+    return waveform
+
+def encode(x):
+    return one_hot_encode(mu_law_encode(x))
+
+def decode(x):
+    return mu_law_decode(one_hot_decode(x))
 

@@ -6,12 +6,12 @@ from torch.autograd import Variable
 from spectogram import spectogram
 import numpy as np
 import globals
-from dataloader import loadWav, writeWav, oneHotDecode
+from dataloader import loadWav, writeWav, one_hot_decode
 from data import LazyDataset
 from os import walk
 from random import randrange
 
-learning_rate = 1e-3
+learning_rate = 1e-4
 CUDA = True
 
 class Model(nn.Module):
@@ -32,17 +32,17 @@ class Model(nn.Module):
 
         # Encapsulate in PyTorch Variable
         x = Variable(inputVector)
-        y = Variable(target, requires_grad=False)
+        y = Variable(target, requires_grad=False).squeeze()
 
         # Run input through model and compute loss
-        y_pred = self(x)
+        y_pred = self(x).squeeze()
         loss = self.loss_fn(y_pred, y)
 
         if self.iteration % 100 == 0 and True:
             print(self.iteration if training else '', filename, loss.data[0])
-            if self.iteration % 200 == 0 and False:
+            if self.iteration % 200 == 0 and True:
                 print('\ttarget = %s prediction = %s' % (y.shape, y_pred.shape))
-                print('\ttarget = %s prediction = %s\n' % (y.data[0][0][0], y_pred.data[0][0]))
+                print('\ttarget = %s prediction = %s\n' % (y.data[0], y_pred.data[0]))
 
         # If training then backwards propagate, otherwise save prediction for output
         if training:
@@ -91,20 +91,21 @@ class ConvModel(Model):
     def __init__(self):
         super(ConvModel, self).__init__()
         # Model Architecture
+        ivs = globals.INPUT_VECTOR_SIZE
+        ovs = 2**16
         self.conv = nn.Sequential(
-            nn.BatchNorm1d(1),
-            nn.Conv1d(1, 800, 1, dilation=1), nn.ReLU(),
-            nn.Conv1d(800, 800, 1, dilation=2), nn.ReLU(), 
-            nn.Conv1d(800, 800, 1, dilation=4), nn.ReLU(), 
-            nn.Conv1d(800, 800, 1, dilation=8), nn.ReLU(), 
-            nn.Conv1d(800, 800, 1, dilation=16), nn.ReLU(), 
-            nn.Conv1d(800, 800, 1, dilation=32), nn.ReLU(), 
-            nn.Conv1d(800, 800, 1, dilation=64), nn.ReLU(), 
-            nn.Conv1d(800, 800, 1, dilation=128), nn.ReLU(),
-            nn.Conv1d(800, 800, 1, dilation=256))
+            nn.Conv1d(64, 800, 1), nn.ReLU(),
+            nn.Conv1d(800, 800, 1), nn.ReLU(),
+            nn.Conv1d(800, 700, 1), nn.ReLU(),
+            nn.Conv1d(700, 500, 1), nn.ReLU(),
+            nn.Conv1d(500, 250, 1), nn.ReLU(),
+            nn.Conv1d(250, 100, 1), nn.ReLU(),
+            nn.MaxPool1d(1))
         self.fc = nn.Sequential(
-                nn.Linear(800 * globals.INPUT_VECTOR_SIZE, 500), nn.ReLU(),
-                nn.Linear(500, 2**globals.SAMPLE_BIT_DEPTH))
+            nn.Linear(100, 50), nn.ReLU(),
+            nn.Linear(50, 25), nn.ReLU(),
+            nn.Linear(25, 10), nn.ReLU(),
+            nn.Linear(10, 1))
 
         self.optimizer = torch.optim.Adam(self.parameters(), lr=learning_rate)
         self.loss_fn = torch.nn.MSELoss(size_average=False)
@@ -159,7 +160,7 @@ def main():
 
     model = ConvModel()
     CurrentData = loadData()
-    for i, data in enumerate(CurrentData.randomSequentialSampler()):
+    for i, data in enumerate(CurrentData.randomSampler()):
         model.train(data)
         if model.iteration % globals.OUTPUT_FREQUENCY == 0:
             doCheckPoint(model, model.iteration)

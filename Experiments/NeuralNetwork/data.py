@@ -2,7 +2,7 @@ from globals import INPUT_VECTOR_SIZE, BATCH_SIZE, SAMPLE_RATE
 import torch
 from torch.utils.data import Dataset, DataLoader
 from torch.utils.data.sampler import RandomSampler, SequentialSampler, Sampler
-from dataloader import loadWav, padStart, padEnd, oneHotEncode
+from dataloader import loadWav, padStart, padEnd
 import numpy as np
 from random import shuffle
 
@@ -13,14 +13,15 @@ class LazyDataset(Dataset):
         self.rawData = data
         if type(procData) is np.ndarray:
             self.processedData = procData
+
+
     
     # Returns an input vector and the target value in a list
     # Format : [ [List of Input Vectors], TargetValue ] 
     def __getitem__(self, i):
 
+        TargetValue = torch.Tensor([[self.processedData[i]]])
         InputVector = None
-        TargetValue = torch.Tensor(oneHotEncode(self.processedData[i]))
-
         if INPUT_VECTOR_SIZE == 1:
             InputVector = torch.Tensor([[self.rawData[i]]])
         else:
@@ -43,8 +44,8 @@ class LazyDataset(Dataset):
             
             InputVector = np.concatenate((
                 (firstHalf, secondHalf)))
-
-            InputVector = torch.Tensor([[iv for iv in InputVector]])
+            InputVector = InputVector.tolist()
+            InputVector = torch.Tensor([[iv] for iv in InputVector])
 
         return [InputVector, TargetValue]
 
@@ -54,18 +55,18 @@ class LazyDataset(Dataset):
     def randomSampler(self):
         return DataLoader(self, batch_size=BATCH_SIZE, 
                 sampler=RandomSampler(self),
-                num_workers=4)
+                num_workers=8)
 
     def sequentialSampler(self):
         return DataLoader(self, batch_size=BATCH_SIZE, 
                 sampler=SequentialSampler(self),
-                num_workers=4)
+                num_workers=8)
 
     def randomSequentialSampler(self):
         return DataLoader(self, batch_size=BATCH_SIZE, 
                 # 5 Seconds (SAMPLE_RATE * 5) seems a reasonable enough time.
                 sampler=RandomSequentialSampler(self, SAMPLE_RATE * 5),
-                num_workers=4)
+                num_workers=8)
 
 class RandomSequentialSampler(Sampler):
     def __init__(self, datasource, seqCount):

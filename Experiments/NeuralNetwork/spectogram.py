@@ -37,6 +37,7 @@ def spectogram(f):
         plt.savefig(f + '.png')
         if isMain:
             plt.show()
+        plt.close()
     except:
         return
 

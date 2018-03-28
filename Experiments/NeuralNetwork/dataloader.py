@@ -21,19 +21,42 @@ def padStart(array, padding):
     pad = np.zeros(padding)
     return np.concatenate((pad, array))
 
-def oneHotEncode(i, bits=globals.SAMPLE_BIT_DEPTH):
-    bits = 2 ** bits
-    topmost = bits // 2
-    bottommost = -1 * (bits // 2)
-    Map = lambda x : int(np.interp(x, [bottommost, topmost], [0, bits]))
+Channels = 2**16
 
-    x = np.zeros(bits)
-    x[Map(i)] = 1
-    return x
+def one_hot_encode(data, channels=Channels):
+    one_hot = np.zeros((data.size, channels), dtype=float)
+    one_hot[np.arange(data.size), data.ravel()] = 1
 
-def oneHotDecode(l, bits=globals.SAMPLE_BIT_DEPTH):
-    bits = 2 ** bits
-    topmost = bits // 2
-    bottommost = -1 * (bits // 2)
-    Map = lambda x : int(np.interp(x, [0, bits], [bottommost, topmost]))
-    return Map(np.argmax(l))
+    return one_hot
+
+def one_hot_decode(data, axis=1):
+    decoded = np.argmax(data, axis=axis)
+
+    return decoded
+
+def mu_law_encode(audio, quantization_channels=Channels):
+    """
+    Quantize waveform amplitudes.
+    Reference: https://github.com/vincentherrmann/pytorch-wavenet/blob/master/audio_data.py
+    """
+    mu = float(quantization_channels - 1)
+    quantize_space = np.linspace(-1, 1, quantization_channels)
+
+    quantized = np.sign(audio) * np.log(1 + mu * np.abs(audio)) / np.log(mu + 1)
+    quantized = np.digitize(quantized, quantize_space) - 1
+
+    return quantized.astype(int)
+
+def mu_law_decode(output, quantization_channels=Channels):
+    """
+    Recovers waveform from quantized values.
+    Reference: https://github.com/vincentherrmann/pytorch-wavenet/blob/master/audio_data.py
+    """
+    mu = float(quantization_channels - 1)
+
+    expanded = (output / quantization_channels) * 2. - 1
+    waveform = np.sign(expanded) * (
+                   np.exp(np.abs(expanded) * np.log(mu + 1)) - 1
+               ) / mu
+
+    return waveform
